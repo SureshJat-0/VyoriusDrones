@@ -2,7 +2,7 @@ import KanbanBoard from "./components/KanbanBoard";
 import { io } from "socket.io-client";
 import Navbar from "./components/Navbar";
 
-const socket = io("http://localhost:8000");
+const socket = io(import.meta.env.VITE_SOCKET_URL);
 
 function App() {
   return (
