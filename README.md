@@ -85,6 +85,12 @@ Create `backend/.env`:
 PORT=8000
 ```
 
+Create `frontend/.env`:
+
+```env
+VITE_SOCKET_URL=http://localhost:8000
+```
+
 ### 3) Run backend
 
 ```bash
