@@ -27,6 +27,12 @@ function KanbanBoard({ socket }) {
       setTasks((prev) => moveTask(prev, updatedTask.id, updatedTask.status));
     });
 
+    socket.on("task:updated", (updatedTask) => {
+      setTasks((prev) =>
+        prev.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
+      );
+    });
+
     return () => {
       socket.off("sync:tasks");
       socket.off("task:created");
@@ -46,25 +52,24 @@ function KanbanBoard({ socket }) {
   };
 
   return (
-    <div className="flex flex-col">
-      <h2>Kanban Board</h2>
+    <div className="flex flex-col gap-8">
+      {/* Task Form Section */}
+      <div className="bg-linear-to-r from-slate-800 to-slate-700 rounded-xl p-6 shadow-glow border border-slate-700/50">
+        <TaskForm socket={socket} />
+      </div>
 
-      {/* adding tasks */}
-      <TaskForm socket={socket} />
-
-      {/* rendering tasks */}
-      <DndContext
-        onDragEnd={handleDragEnd}
-        className="flex justify-between gap-5 grow"
-      >
-        <Column title="To Do" status="todo" tasks={tasks} socket={socket} />
-        <Column
-          title="In Progress"
-          status="inProgress"
-          tasks={tasks}
-          socket={socket}
-        />
-        <Column title="Done" status="done" tasks={tasks} socket={socket} />
+      {/* Columns Section */}
+      <DndContext onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Column title="To Do" status="todo" tasks={tasks} socket={socket} />
+          <Column
+            title="In Progress"
+            status="inProgress"
+            tasks={tasks}
+            socket={socket}
+          />
+          <Column title="Done" status="done" tasks={tasks} socket={socket} />
+        </div>
       </DndContext>
     </div>
   );

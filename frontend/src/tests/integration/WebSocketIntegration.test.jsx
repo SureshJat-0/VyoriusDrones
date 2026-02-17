@@ -8,6 +8,7 @@ import {
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import KanbanBoard from "../../components/KanbanBoard";
+import Navbar from "../../components/Navbar";
 
 // mock socket
 const createMockSocket = () => {
@@ -36,7 +37,7 @@ describe("KanbanBoard Integration", () => {
   });
 
   it("renders Kanban Board", () => {
-    render(<KanbanBoard socket={mockSocket} />);
+    render(<Navbar socket={mockSocket} />);
 
     expect(screen.getByText("Kanban Board")).toBeInTheDocument();
   });
@@ -54,8 +55,8 @@ describe("KanbanBoard Integration", () => {
   it("emit socket event when adding a task", () => {
     render(<KanbanBoard socket={mockSocket} />);
 
-    const input = screen.getByPlaceholderText(/task.../i);
-    const button = screen.getByText(/Add task/i);
+    const input = screen.getByPlaceholderText(/Add a new task.../i);
+    const button = screen.getByText(/Create Task/i);
 
     fireEvent.change(input, { target: { value: "Test Task" } });
     fireEvent.click(button);
@@ -65,8 +66,8 @@ describe("KanbanBoard Integration", () => {
       expect.objectContaining({ title: "Test Task" }),
     );
   });
-  // ui update after socket event - task:created
-  it("updates ui when task:created event is received", async () => {
+  // ui update after socket event received
+  it("updates ui when task:created, task:deleted, task:moved event received", async () => {
     render(<KanbanBoard socket={mockSocket} />);
 
     const MockTask = {
@@ -100,7 +101,8 @@ describe("KanbanBoard Integration", () => {
     await screen.findByText("Mock Task");
 
     // confirm task is in To Do column
-    const todoColumn = screen.getByText("To Do").closest("div");
+    const todoColumn = screen.getByText("To Do").closest("div").parentElement
+      .parentElement.parentElement;
     expect(todoColumn).toHaveTextContent("Mock Task");
 
     // task:moved
@@ -110,13 +112,15 @@ describe("KanbanBoard Integration", () => {
 
     // confirm task is in Done column
     await waitFor(() => {
-      const doneColumn = screen.getByText("Done").closest("div");
+      const doneColumn = screen.getByText("Done").closest("div").parentElement
+        .parentElement.parentElement;
       expect(doneColumn).toHaveTextContent("Mock Task");
     });
 
     // Ensure it is no longer in To Do column
     await waitFor(() => {
-      const todoColumnAfter = screen.getByText("To Do").closest("div");
+      const todoColumnAfter = screen.getByText("To Do").closest("div")
+        .parentElement.parentElement.parentElement;
       expect(todoColumnAfter).not.toHaveTextContent("Mock Task");
     });
   });
